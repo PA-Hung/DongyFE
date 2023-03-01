@@ -1,0 +1,71 @@
+.register-container{
+    background-color: #f2f0f5;
+    min-height: 94vh;
+    padding-top: 50px;
+    .content-left{
+        margin-top: 70px;
+        .logo-web{
+            height: 100px;
+        }
+        .title{
+            font-size: 24px;
+            font-weight: bold;
+        }
+    }
+    .content-right{
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgb(0 0 0 / 10%), 0 8px 16px rgb(0 0 0 / 10%);
+        box-sizing: border-box;
+
+        .facebook-right{
+            text-align: center;
+            .logo-mobi{
+                height: 50px;
+            }
+        }
+        
+        .forgot-pass{
+            text-decoration: none;
+            &:hover{
+                text-decoration: underline;
+            }
+        }
+        .Input-email{
+            height: 50px;
+            border-radius: 6px;
+            
+        }
+        .Input-phone{
+            height: 50px;
+            border-radius: 6px;
+            
+        }
+        .Input-username{
+            height: 50px;
+            border-radius: 6px;
+            
+        }
+        .Input-pass{
+            height: 50px;
+            border-radius: 6px;
+        }
+        .btLogin{
+            height: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .btCNAcc{
+            height: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: inherit;
+                
+        }
+        .btn-success{
+            background-color: #42B72A;
+                
+        }
+        
+    }
+}

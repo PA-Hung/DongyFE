@@ -1,0 +1,57 @@
+.avatar-benhnhan{
+    max-width: 100%;
+}
+.container-fluid{
+    .search-content{
+        // .input-search{
+        //     margin-right: 1px;
+        // }
+        .button-search{
+            margin-left: 10px;
+            align-items: center;
+        }
+    }
+    .link-name{
+        background: none;
+        border: none;
+        color: blue;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .expandContent{
+           justify-content: center;
+           justify-items: center;
+           align-items: center;
+        .expandContentDetail{
+           width: 100%;
+           
+        }
+        .avatar{
+            max-width: 100%;
+        }
+        .upContent{
+            align-items: center;
+            font-weight: bold;
+        }
+        .tabsContent{
+            button{
+                &:hover{
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+                &:active{
+                    text-decoration: none;
+                }
+            }
+            .tab-content{
+                .textarea{
+                    width: 100%;
+                    resize: both;
+                    //pointer-events: none;
+                }
+            }
+        }
+    }
+    
+}
+

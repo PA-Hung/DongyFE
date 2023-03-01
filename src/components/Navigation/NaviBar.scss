@@ -1,0 +1,62 @@
+
+  /* Add a black background color to the top navigation */
+  
+  .nav-header {
+    //padding-bottom:0.5rem;
+    .navbar{
+        //padding-bottom: 0 !important;
+        height: 50px;
+        border-bottom: 0.5px solid lightcyan;
+        .logo-text{
+          color: coral;
+        }
+    }
+  
+    .bg-header {
+      background-color: #FBFBFB;
+      .nav-brand{
+        //padding-bottom: 1!important;
+        font-weight: bold;
+        
+      }
+      .setting{
+        display: flex;
+        margin-right: 75px;
+        //border: 1px solid lawngreen;
+      }
+    }
+    a, .nav-link {
+      color: black !important; // important để ghi đè lại bootstrap
+      &:hover {
+        color: #61dafb !important;
+      }
+    }
+    .nav-brand {
+      color: #61dafb !important;
+      img {
+        animation: App-logo-spin infinite 20s linear;
+      }
+      @keyframes App-logo-spin {
+        from{
+          transform: rotate(360deg);
+        }
+        to{
+          transform: rotate(0deg);
+        }
+      }
+    }
+
+    .nav-link{
+      &.active {
+        color: #5489fc !important;
+      }
+    }
+    .dropdown-menu {
+      a {
+        color: #212529 !important;
+        
+      }
+      
+    }
+  }
+  
