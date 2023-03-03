@@ -116,7 +116,7 @@ const Project = (props) => {
         console.log('>>>>>>>>>>>>>', searchPhone)
         console.log('>>>>>>>>>>>>>', searchName)
         console.log('>>>>>> searchNamsinh >>>>>>>', searchNamsinh)
-        console.log('>>>>>>>>>>>>>', searchDiachi)
+        console.log('>>>>>> searchDiachi >>>>>>>', searchDiachi)
         console.log('>>>>>>>>>>>>>', searchLoaibenh)
         console.log('>>>>>>>>>>>>>', searchNgaykham)
         console.log('>>>>>>>>>>>>>', searchGhichu)
