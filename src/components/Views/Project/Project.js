@@ -31,6 +31,7 @@ const Project = (props) => {
         // input-id : { inputSearchValue: '', isValidInput: true }
         _listInputs[`input-${uuidv4()}`] = { typeInputSearch: '', inputSearchValue: '', isValidInput: true }
         setListInputs(_listInputs)
+        console.log('>>>>>', _listInputs)
     }
 
     const handleRemoveInputSearch = (key) => {
@@ -70,6 +71,14 @@ const Project = (props) => {
         let dataSearch = buildDataToSearch()
         let searchName = ''
         let searchPhone = ''
+        let searchNamsinh = ''
+        let searchDiachi = ''
+        let searchLoaibenh = ''
+        let searchNgaykham = ''
+        let searchGhichu = ''
+        let searchChandoan = ''
+        let searchDieutri = ''
+        let searchKetqua = ''
         console.log('>>> check dataSearch ', dataSearch)
         dataSearch.map((input) => {
             if (input.typeInputSearch === 'searchName') {
@@ -78,11 +87,52 @@ const Project = (props) => {
             if (input.typeInputSearch === 'searchDienthoai') {
                 searchPhone = input.inputSearchValue
             }
+            if (input.typeInputSearch === 'searchNamsinh') {
+                searchNamsinh = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchDiachi') {
+                searchDiachi = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchLoaibenh') {
+                searchLoaibenh = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchNgaykham') {
+                searchNgaykham = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchGhichu') {
+                searchGhichu = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchChandoan') {
+                searchChandoan = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchDieutri') {
+                searchDieutri = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchKetqua') {
+                searchKetqua = input.inputSearchValue
+            }
         })
+
+        console.log('>>>>>>>>>>>>>', searchPhone)
+        console.log('>>>>>>>>>>>>>', searchName)
+        console.log('>>>>>> searchNamsinh >>>>>>>', searchNamsinh)
+        console.log('>>>>>>>>>>>>>', searchDiachi)
+        console.log('>>>>>>>>>>>>>', searchLoaibenh)
+        console.log('>>>>>>>>>>>>>', searchNgaykham)
+        console.log('>>>>>>>>>>>>>', searchGhichu)
+        console.log('>>>>>>>>>>>>>', searchChandoan)
+        console.log('>>>>>>>>>>>>>', searchDieutri)
+        console.log('>>>>>>>>>>>>>', searchKetqua)
 
         //------------------------------------
 
-        let response = await searchPatient(searchName, searchPhone, currentPage, currentLitmit)
+        let response = await searchPatient(
+            searchName, searchPhone,
+            searchNamsinh, searchDiachi,
+            searchLoaibenh, searchNgaykham,
+            searchGhichu, searchChandoan,
+            searchDieutri, searchKetqua,
+            currentPage, currentLitmit)
         if (response && response.EC === 0) {
             setTotalPages(response.DT.totalPages)
             if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
