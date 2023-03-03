@@ -11,7 +11,6 @@ import NaviBar from "./components/Navigation/NaviBar";
 
 function App() {
   const { user } = React.useContext(UserContext)
-  //console.log('>>>>>>>>>>>>>>>>>>>>>>>', process.env.REACT_APP_BACKEND_URL)
   return (
     <>
       <Router>

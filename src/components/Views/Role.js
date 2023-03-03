@@ -8,9 +8,9 @@ import TableRoles from './TableRoles';
 
 const Role = (props) => {
     const childRef = useRef()
-    const dataChildDefault = { url: '', description: '', isValidURL: true }
+    const dataInputDefault = { url: '', description: '', isValidURL: true }
     const [listChilds, setListChilds] = useState({
-        child1: dataChildDefault
+        child1: dataInputDefault
     })
 
     const handleOnChangeInput = (name, value, key) => {
@@ -24,7 +24,7 @@ const Role = (props) => {
 
     const handleAddNewURL = () => {
         let _listChilds = _.cloneDeep(listChilds)
-        _listChilds[`child-${uuidv4()}`] = dataChildDefault
+        _listChilds[`child-${uuidv4()}`] = dataInputDefault
         setListChilds(_listChilds)
     }
 

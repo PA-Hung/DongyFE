@@ -7,19 +7,100 @@ import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 import ModalDelete from './Modal/ModalDelete';
 import { EditPatientContext } from '../../../context/EditPatientContext'
-import { Image, Tabs, Pagination } from 'antd';
-
-
+import { Image, Tabs, Pagination, Modal, Button } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash'
 
 const Project = (props) => {
     let history = useHistory()
 
+    // ------------- tìm kiếm
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [listInputs, setListInputs] = useState({
+        inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
+    })
+
+    const handleOnChangeInput = (name, value, key) => {
+        let _listInputs = _.cloneDeep(listInputs)
+        _listInputs[key][name] = value
+        setListInputs(_listInputs)
+    }
+
+    const handleAddNewInputSearch = () => {
+        let _listInputs = _.cloneDeep(listInputs)
+        // input-id : { inputSearchValue: '', isValidInput: true }
+        _listInputs[`input-${uuidv4()}`] = { typeInputSearch: '', inputSearchValue: '', isValidInput: true }
+        setListInputs(_listInputs)
+    }
+
+    const handleRemoveInputSearch = (key) => {
+        let _listInputs = _.cloneDeep(listInputs)
+        console.log(_listInputs[key])
+        delete _listInputs[key]
+        setListInputs(_listInputs)
+    }
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleChangeTypeInputSearch = (name, value, key) => {
+        let _listInputs = _.cloneDeep(listInputs)
+        _listInputs[key][name] = value
+        setListInputs(_listInputs)
+    };
+
+    const buildDataToSearch = () => {
+        let _listInputs = _.cloneDeep(listInputs)
+        let result = []
+        Object.entries(_listInputs).map(([key, input], index) => {
+            result.push({
+                typeInputSearch: input.typeInputSearch,
+                inputSearchValue: input.inputSearchValue
+            })
+        })
+        return result
+    }
+
+    const handleSearch = async () => {
+        let dataSearch = buildDataToSearch()
+        let searchName = ''
+        let searchPhone = ''
+        console.log('>>> check dataSearch ', dataSearch)
+        dataSearch.map((input) => {
+            if (input.typeInputSearch === 'searchName') {
+                searchName = input.inputSearchValue
+            }
+            if (input.typeInputSearch === 'searchDienthoai') {
+                searchPhone = input.inputSearchValue
+            }
+        })
+
+        //------------------------------------
+
+        let response = await searchPatient(searchName, searchPhone, currentPage, currentLitmit)
+        if (response && response.EC === 0) {
+            setTotalPages(response.DT.totalPages)
+            if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
+                setCurrentPage(response.DT.totalPages)
+            }
+            if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
+                setDataPatient(response.DT.patients)
+            }
+        } else {
+            toast.error(response.EM)
+        }
+    };
+
+    // ------------- end tìm kiếm
     const [dataModalDelete, setDataModalDelete] = useState({}) // đây là data modal delete
     const [isShowModalDelete, setIsShowModalDelete] = useState(false) // hiển thị modal delete
-
     const [dataEditPatient, setDataEditPatient] = useContext(EditPatientContext)
 
-    const [searchValue, setSearchValue] = useState("")
     const [expandedRows, setExpandedRows] = useState([]);
 
     const [dataPatient, setDataPatient] = useState([])
@@ -40,37 +121,32 @@ const Project = (props) => {
     }
 
     useEffect(() => {
-        // if (searchValue) {
-        //     handleSearch()
-        // } else {
         getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
-        console.log('>>>>>>>>>>> khi load ', totalPages)
-        // }
     }, [currentLitmit, currentPage])
 
     const getAllPatient = async () => {
         let response = await fetchAllPatient(currentPage, currentLitmit)
         if (response && response.EC === 0) {
             setTotalPages(response.DT.totalPages)
-            console.log('>>>>>>>>>>> tổng số trang khi nhận về :', response.DT.totalPages)
             if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
                 setCurrentPage(response.DT.totalPages)
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setDataPatient(response.DT.patients)
-                console.log('Check data ', response.DT.patients)
+                // console.log('Check data ', response.DT.patients)
+                // response.DT.patients.map((data) => (
+                //     console.log('check image', data.Project_Imgs)
+                // ))
             }
         }
     }
 
     const handleRefresh = async () => {
         setCurrentPage(1)
-        setSearchValue('')
         await getAllPatient()
     }
 
     const handlePageClick = async (page) => {
-        //console.log('>>>>>>>>>>>>>>>> thay đổi trang: ', page)
         setCurrentPage(page)
     };
 
@@ -101,24 +177,6 @@ const Project = (props) => {
         setDataModalDelete({})
     };
 
-    const handleSearch = async () => {
-        //console.log('currentPage', currentPage)
-        let response = await searchPatient(searchValue, currentPage, currentLitmit)
-        //console.log('currentPage', currentPage)
-        if (response && response.EC === 0) {
-            setTotalPages(response.DT.totalPages)
-            if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
-                setCurrentPage(response.DT.totalPages)
-            }
-            if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
-                setDataPatient(response.DT.patients)
-
-            }
-        } else {
-            toast.error(response.EM)
-        }
-    }
-
     const handleKeyPressSearch = (event) => {
         console.log(event.code)
         if (event.code === "Enter") {
@@ -127,7 +185,6 @@ const Project = (props) => {
     }
 
     const handleEditPatient = (patient) => {
-        //console.log('check dữ liệu nam sinh send to edit page : ', patient.tuoi)
         setDataEditPatient(patient)
         history.push(`/editpatient`)
     }
@@ -135,7 +192,7 @@ const Project = (props) => {
 
     return (
         <>
-            <div className='container-fluid'>
+            <div className='container-fluid mb-5'>
                 <div className='tittle pt-2'>
                     <nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
@@ -145,19 +202,81 @@ const Project = (props) => {
                     </nav>
                 </div>
                 <div className='search-content d-flex justify-content-between'>
-                    <div className='d-flex'>
-                        <div className='input-search'>
-                            <input type='text' className='form-control'
-                                value={searchValue}
-                                onKeyPress={(event) => handleKeyPressSearch(event)}
-                                onChange={(event) => setSearchValue(event.target.value, setCurrentPage(1))} />
-                        </div>
-                        <div className='button-search'>
-                            <button className='btn btn-primary'
-                                onClick={() => handleSearch()}
-                            ><i className="fa fa-search" /></button>
-                        </div>
+
+                    <div className='button-search'>
+                        <button className='btn btn-primary'
+                            onClick={showModal}
+                        ><i className="fa fa-search" /> Tìm kiếm</button>
                     </div>
+
+                    <Modal className='modal-search'
+                        title="Tìm kiếm"
+                        open={isModalOpen}
+                        onOk={handleSearch}
+                        onCancel={handleCancel}
+                        footer={[
+                            <Button key="back" onClick={handleCancel}>
+                                Đóng
+                            </Button>,
+                            <Button
+                                key="link"
+                                type="primary"
+                                //loading={loading}
+                                onClick={handleSearch}
+                            >
+                                Tìm kiếm bệnh nhân
+                            </Button>,
+                        ]}
+                    >
+                        {
+                            Object.entries(listInputs).map(([key, input], index) => {
+                                return (
+                                    <div className='searchContent d-flex col-12 my-1' key={`child-${key}`}>
+                                        <div className='mx-2'>
+                                            <select className="form-select col-4"
+                                                onChange={(event) => { handleChangeTypeInputSearch('typeInputSearch', event.target.value, key) }}
+                                            >
+                                                <option defaultValue>Chọn cột</option>
+                                                <option value='searchName'>Họ tên</option>
+                                                <option value="searchNamsinh">Năm sinh</option>
+                                                <option value="searchDiachi">Địa chỉ</option>
+                                                <option value="searchDienthoai">Điện thoại</option>
+                                                <option value="searchLoaibenh">Loại bệnh</option>
+                                                <option value="searchNgaykham">Ngày khám</option>
+                                                <option value="searchGhichu">Ghi chú</option>
+                                                <option value="searchChandoan">Chẩn đoán</option>
+                                                <option value="searchDieutri">Điều trị</option>
+                                                <option value="searchKetqua">Kết quả</option>
+                                            </select>
+                                        </div>
+                                        <div className='input-search col-6'>
+                                            <input type='type'
+                                                className='form-control'
+                                                value={input.inputSearchValue}
+                                                onChange={(event) => handleOnChangeInput('inputSearchValue', event.target.value, key)}
+                                            />
+                                        </div>
+                                        <div className='d-flex'>
+                                            {index <= 8 &&
+                                                <i
+                                                    style={{ paddingTop: '7px', fontSize: '25px', paddingLeft: '10px', cursor: 'pointer' }}
+                                                    className="addBT fa fa-plus-circle add"
+                                                    onClick={() => handleAddNewInputSearch()}
+                                                />
+                                            }
+                                            {index >= 1 &&
+                                                <i className="fa fa-minus-circle remove"
+                                                    style={{ paddingTop: '7px', fontSize: '25px', paddingLeft: '10px', cursor: 'pointer' }}
+                                                    onClick={() => handleRemoveInputSearch(key)}
+                                                />
+                                            }
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        }
+
+                    </Modal>
                     <div className='d-xl-none d-block'>
                         <button
                             className='btn btn-success mx-2'
@@ -269,7 +388,7 @@ const Project = (props) => {
                                                 <div className='expandContent d-flex'>
 
                                                     <div className='expandContentDetail'>
-                                                        <div className="tab-content border border border-light col-12">
+                                                        <div className="tab-content col-12">
                                                             <Tabs
                                                                 defaultActiveKey="1"
                                                                 centered
@@ -289,11 +408,12 @@ const Project = (props) => {
                                                                             key: '2',
                                                                             label: `Chẩn đoán`,
                                                                             children: <textarea
+                                                                                style={{ fontSize: '20px', fontWeight: 'bold' }}
                                                                                 disabled
                                                                                 className="textarea form-control"
                                                                                 id="exampleFormControlTextarea1"
                                                                                 value={item.chandoan || ''}
-                                                                                rows="6"></textarea>,
+                                                                                rows="12"></textarea>,
                                                                         },
                                                                         {
                                                                             key: '3',
@@ -309,11 +429,12 @@ const Project = (props) => {
                                                                             key: '4',
                                                                             label: `Kết quả`,
                                                                             children: <textarea
+                                                                                style={{ fontSize: '20px', fontWeight: 'bold' }}
                                                                                 disabled
                                                                                 className="textarea form-control"
                                                                                 id="exampleFormControlTextarea1"
                                                                                 value={item.ketqua || ''}
-                                                                                rows="6"></textarea>,
+                                                                                rows="12"></textarea>,
                                                                         },
                                                                         {
                                                                             key: '5',
@@ -321,9 +442,12 @@ const Project = (props) => {
                                                                             children:
                                                                                 <div className='d-flex justify-content-center'>
                                                                                     <div className="carousel-wrapper">
+                                                                                        {/* {console.log(image)}
+                                                                                        {image.map((data, index) => (
+                                                                                            console.log(data)
+                                                                                        ))} */}
 
                                                                                     </div>
-
                                                                                 </div>
                                                                         },
                                                                     ]
@@ -344,7 +468,7 @@ const Project = (props) => {
                     totalPages > 0 &&
                     <div className='d-flex justify-content-center'>
                         <div>
-                            {console.log('>>>><><>', totalPages)}
+
                             <Pagination
                                 defaultCurrent={currentPage}
                                 total={totalPages * 10}
