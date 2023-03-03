@@ -46,6 +46,9 @@ const Project = (props) => {
     };
 
     const handleCancel = () => {
+        setListInputs({
+            inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
+        })
         setIsModalOpen(false);
     };
 
@@ -113,16 +116,16 @@ const Project = (props) => {
             }
         })
 
-        console.log('>>>>>>>>>>>>>', searchPhone)
-        console.log('>>>>>>>>>>>>>', searchName)
-        console.log('>>>>>> searchNamsinh >>>>>>>', searchNamsinh)
-        console.log('>>>>>> searchDiachi >>>>>>>', searchDiachi)
-        console.log('>>>>>>>>>>>>>', searchLoaibenh)
-        console.log('>>>>>>>>>>>>>', searchNgaykham)
-        console.log('>>>>>>>>>>>>>', searchGhichu)
-        console.log('>>>>>>>>>>>>>', searchChandoan)
-        console.log('>>>>>>>>>>>>>', searchDieutri)
-        console.log('>>>>>>>>>>>>>', searchKetqua)
+        // console.log('>>>>>>>>>>>>>', searchPhone)
+        // console.log('>>>>>>>>>>>>>', searchName)
+        // console.log('>>>>>>>>>>>>>', searchNamsinh)
+        // console.log('>>>>>>>>>>>>>', searchDiachi)
+        // console.log('>>>>>>>>>>>>>', searchLoaibenh)
+        // console.log('>>>>>>>>>>>>>', searchNgaykham)
+        // console.log('>>>>>>>>>>>>>', searchGhichu)
+        //console.log('>>>>>>searchChandoan>>>>>>>', searchChandoan)
+        // console.log('>>>>>>>>>>>>>', searchDieutri)
+        //console.log('>>>>>>searchKetqua>>>>>>>', searchKetqua)
 
         //------------------------------------
 
@@ -132,7 +135,8 @@ const Project = (props) => {
             searchLoaibenh, searchNgaykham,
             searchGhichu, searchChandoan,
             searchDieutri, searchKetqua,
-            currentPage, currentLitmit)
+            currentPage, currentLitmit
+        )
         if (response && response.EC === 0) {
             setTotalPages(response.DT.totalPages)
             if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
@@ -144,6 +148,7 @@ const Project = (props) => {
         } else {
             toast.error(response.EM)
         }
+
     };
 
     // ------------- end tìm kiếm
@@ -193,6 +198,9 @@ const Project = (props) => {
 
     const handleRefresh = async () => {
         setCurrentPage(1)
+        setListInputs({
+            inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
+        })
         await getAllPatient()
     }
 
