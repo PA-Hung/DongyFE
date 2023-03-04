@@ -13,8 +13,32 @@ import _ from 'lodash'
 
 const Project = (props) => {
     let history = useHistory()
+    const [isLoading, setIsLoading] = useState(false);
 
-    // ------------- tìm kiếm
+    const [dataModalDelete, setDataModalDelete] = useState({}) // đây là data modal delete
+    const [isShowModalDelete, setIsShowModalDelete] = useState(false) // hiển thị modal delete
+    const [dataEditPatient, setDataEditPatient] = useContext(EditPatientContext)
+
+    const [expandedRows, setExpandedRows] = useState([]);
+
+    const [dataPatient, setDataPatient] = useState([])
+
+    // Pagination ------------------------------
+    const [currentLitmit, setCurrentLimit] = useState(10)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(0)
+    // Pagination ------------------------------
+
+    const toggleExpandRow = (rowId) => {
+        console.log(rowId)
+        if (expandedRows.includes(rowId)) {
+            setExpandedRows(expandedRows.filter((id) => id !== rowId));
+        } else {
+            setExpandedRows([...expandedRows, rowId]);
+        }
+    }
+
+    // -------------Start tìm kiếm
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [listInputs, setListInputs] = useState({
         inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
@@ -42,6 +66,7 @@ const Project = (props) => {
     }
 
     const showModal = () => {
+        setCurrentPage(1)
         setIsModalOpen(true);
     };
 
@@ -71,6 +96,7 @@ const Project = (props) => {
     }
 
     const handleSearch = async () => {
+        setIsLoading(true)
         let dataSearch = buildDataToSearch()
         let searchName = ''
         let searchPhone = ''
@@ -83,6 +109,7 @@ const Project = (props) => {
         let searchDieutri = ''
         let searchKetqua = ''
         console.log('>>> check dataSearch ', dataSearch)
+        console.log('>>> check data listInputs ', listInputs.inputSearch.inputSearchValue)
         dataSearch.map((input) => {
             if (input.typeInputSearch === 'searchName') {
                 searchName = input.inputSearchValue
@@ -116,17 +143,6 @@ const Project = (props) => {
             }
         })
 
-        // console.log('>>>>>>>>>>>>>', searchPhone)
-        // console.log('>>>>>>>>>>>>>', searchName)
-        // console.log('>>>>>>>>>>>>>', searchNamsinh)
-        // console.log('>>>>>>>>>>>>>', searchDiachi)
-        // console.log('>>>>>>>>>>>>>', searchLoaibenh)
-        // console.log('>>>>>>>>>>>>>', searchNgaykham)
-        // console.log('>>>>>>>>>>>>>', searchGhichu)
-        //console.log('>>>>>>searchChandoan>>>>>>>', searchChandoan)
-        // console.log('>>>>>>>>>>>>>', searchDieutri)
-        //console.log('>>>>>>searchKetqua>>>>>>>', searchKetqua)
-
         //------------------------------------
 
         let response = await searchPatient(
@@ -144,39 +160,22 @@ const Project = (props) => {
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setDataPatient(response.DT.patients)
+                setIsLoading(false)
             }
         } else {
             toast.error(response.EM)
         }
-
     };
 
-    // ------------- end tìm kiếm
-    const [dataModalDelete, setDataModalDelete] = useState({}) // đây là data modal delete
-    const [isShowModalDelete, setIsShowModalDelete] = useState(false) // hiển thị modal delete
-    const [dataEditPatient, setDataEditPatient] = useContext(EditPatientContext)
-
-    const [expandedRows, setExpandedRows] = useState([]);
-
-    const [dataPatient, setDataPatient] = useState([])
-
-    // Pagination ------------------------------
-    const [currentLitmit, setCurrentLimit] = useState(10)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(0)
-    // Pagination ------------------------------
-
-    const toggleExpandRow = (rowId) => {
-        console.log(rowId)
-        if (expandedRows.includes(rowId)) {
-            setExpandedRows(expandedRows.filter((id) => id !== rowId));
-        } else {
-            setExpandedRows([...expandedRows, rowId]);
-        }
-    }
+    // ------------- End tìm kiếm
 
     useEffect(() => {
-        getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (listInputs.inputSearch.inputSearchValue) {
+            handleSearch()
+        } else {
+            getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+
     }, [currentLitmit, currentPage])
 
     const getAllPatient = async () => {
@@ -277,13 +276,13 @@ const Project = (props) => {
                                 Đóng
                             </Button>,
                             <Button
-                                key="link"
+                                shape="circle"
                                 type="primary"
-                                //loading={loading}
                                 onClick={handleSearch}
-                            >
-                                Tìm kiếm bệnh nhân
-                            </Button>,
+                                loading={isLoading}
+                                icon={<i className="fa fa-search" />}
+                            />
+
                         ]}
                     >
                         {
@@ -292,6 +291,7 @@ const Project = (props) => {
                                     <div className='searchContent d-flex col-12 my-1' key={`child-${key}`}>
                                         <div className='mx-2'>
                                             <select className="form-select col-4"
+                                                value={input.typeInputSearch}
                                                 onChange={(event) => { handleChangeTypeInputSearch('typeInputSearch', event.target.value, key) }}
                                             >
                                                 <option defaultValue>Chọn cột</option>
