@@ -22,12 +22,17 @@ const Project = (props) => {
     const [expandedRows, setExpandedRows] = useState([]);
 
     const [dataPatient, setDataPatient] = useState([])
-
-    // Pagination ------------------------------
+    const [searchResults, setSearchResults] = useState([]);
+    // Pagination Patient ------------------------------
     const [currentLitmit, setCurrentLimit] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(0)
-    // Pagination ------------------------------
+    // Pagination Patient ------------------------------
+    // Pagination Search ------------------------------
+    const [currentSearchLitmit, setCurrentSearchLimit] = useState(10)
+    const [currentSearchPage, setCurrentSearchPage] = useState(1)
+    const [totalSearchPages, setTotalSearchPages] = useState(0)
+    // Pagination Search ------------------------------
 
     const toggleExpandRow = (rowId) => {
         console.log(rowId)
@@ -55,7 +60,6 @@ const Project = (props) => {
         // input-id : { inputSearchValue: '', isValidInput: true }
         _listInputs[`input-${uuidv4()}`] = { typeInputSearch: '', inputSearchValue: '', isValidInput: true }
         setListInputs(_listInputs)
-        console.log('>>>>>', _listInputs)
     }
 
     const handleRemoveInputSearch = (key) => {
@@ -71,9 +75,6 @@ const Project = (props) => {
     };
 
     const handleCancel = () => {
-        setListInputs({
-            inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
-        })
         setIsModalOpen(false);
     };
 
@@ -108,8 +109,6 @@ const Project = (props) => {
         let searchChandoan = ''
         let searchDieutri = ''
         let searchKetqua = ''
-        console.log('>>> check dataSearch ', dataSearch)
-        console.log('>>> check data listInputs ', listInputs.inputSearch.inputSearchValue)
         dataSearch.map((input) => {
             if (input.typeInputSearch === 'searchName') {
                 searchName = input.inputSearchValue
@@ -151,15 +150,19 @@ const Project = (props) => {
             searchLoaibenh, searchNgaykham,
             searchGhichu, searchChandoan,
             searchDieutri, searchKetqua,
-            currentPage, currentLitmit
+            currentSearchPage, currentSearchLitmit
         )
         if (response && response.EC === 0) {
-            setTotalPages(response.DT.totalPages)
+            setTotalSearchPages(response.DT.totalPages)
             if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
                 setCurrentPage(response.DT.totalPages)
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
-                setDataPatient(response.DT.patients)
+                setSearchResults(response.DT.patients)
+                console.log('du liệu tìm kiếm nhận được', response.DT.patients)
+                setIsLoading(false)
+            } else {
+                toast.error('Thông tin không tồn tại !')
                 setIsLoading(false)
             }
         } else {
@@ -170,13 +173,12 @@ const Project = (props) => {
     // ------------- End tìm kiếm
 
     useEffect(() => {
-        if (listInputs.inputSearch.inputSearchValue) {
+        if (searchResults.length > 0) {
             handleSearch()
         } else {
             getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
         }
-
-    }, [currentLitmit, currentPage])
+    }, [searchResults.length > 0 ? currentSearchLitmit : currentLitmit, searchResults.length > 0 ? currentSearchPage : currentPage])
 
     const getAllPatient = async () => {
         let response = await fetchAllPatient(currentPage, currentLitmit)
@@ -196,7 +198,7 @@ const Project = (props) => {
     }
 
     const handleRefresh = async () => {
-        setCurrentPage(1)
+        setSearchResults([]);
         setListInputs({
             inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
         })
@@ -205,12 +207,14 @@ const Project = (props) => {
 
     const handlePageClick = async (page) => {
         setCurrentPage(page)
+        setCurrentSearchPage(page)
     };
 
     const onShowSizeChange = (current, pageSize) => {
         console.log(current, pageSize);
-        setCurrentPage(current)
+        setCurrentPage(1)
         setCurrentLimit(pageSize)
+        setCurrentSearchLimit(pageSize)
     };
 
     const handleDeletePatient = async (patient) => {
@@ -246,6 +250,10 @@ const Project = (props) => {
         history.push(`/editpatient`)
     }
 
+    const dataTable = searchResults.length > 0 ? searchResults : dataPatient;
+    const totalDataTable = searchResults.length > 0 ? totalSearchPages : totalPages
+    const currentDataTablePage = searchResults.length > 0 ? currentSearchPage : currentPage
+    const currentDataTableLitmit = searchResults.length > 0 ? currentSearchLitmit : currentLitmit
 
     return (
         <>
@@ -276,6 +284,7 @@ const Project = (props) => {
                                 Đóng
                             </Button>,
                             <Button
+                                key='link'
                                 shape="circle"
                                 type="primary"
                                 onClick={handleSearch}
@@ -359,7 +368,10 @@ const Project = (props) => {
                 </div>
 
                 <div><hr /></div>
-                <table className="table table-hover table-bordered">
+
+                <table
+                    className="table table-hover table-bordered"
+                >
                     <thead>
                         <tr className='table-primary'>
                             <th className='text-center align-middle'>ID</th>
@@ -375,161 +387,160 @@ const Project = (props) => {
                     </thead>
                     <tbody className='table-striped'>
                         {/* Loop through your data and render each row */}
-                        {
-                            dataPatient.length > 0 && dataPatient.map(
-                                (item, index) => (
-                                    <React.Fragment key={item.id}>
-                                        <tr>
-                                            <td className='text-center align-middle'>
-                                                {(currentPage - 1) * currentLitmit + index + 1}
-                                            </td>
-                                            <td className='text-center align-middle'>
-                                                <div className='avatar-benhnhan'>
-                                                    <Image
-                                                        className='avatar-benhnhan'
-                                                        width={80}
-                                                        src={item.hinhanh ? item.hinhanh : noAvatar}
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td className='align-middle'>
-                                                <button
-                                                    className='link-name'
-                                                    onClick={() => toggleExpandRow(item.id)}>
-                                                    {item.name}
-                                                </button>
-                                            </td>
-                                            <td className='text-center align-middle'>
-                                                {item.tuoi}
-                                            </td>
-                                            <td className='align-middle'>
-                                                {item.diachi}
-                                            </td>
-                                            <td className='text-center align-middle'>
-                                                {item.dienthoai}
-                                            </td>
-                                            <td className='align-middle'>
-                                                {item.phanloaibenh}
-                                            </td>
-                                            <td className='align-middle text-center'>
-                                                {item.ngaykham ? dayjs(item.ngaykham).toISOString().substring(0, 10).split("-").reverse().join("/") : 'chưa nhập'}
 
-                                            </td>
-                                            <td className='actions d-flex justify-content-center'>
-                                                <div>
-                                                    {expandedRows.includes(item.id) ?
-                                                        <i className="fa fa-minus-circle remove"
-                                                            onClick={() => toggleExpandRow(item.id)}
-                                                        />
-                                                        :
-                                                        <i className="fa fa-plus-circle add"
-                                                            onClick={() => toggleExpandRow(item.id)}
-                                                        />
-                                                    }
-                                                </div>
-                                                <div className='mx-3'>
-                                                    <i className="fa fa-trash-o"
-                                                        onClick={() => handleDeletePatient(item)} />
-                                                </div>
-                                                <div>
-                                                    <i className="fa fa-pencil"
-                                                        onClick={() => handleEditPatient(item)}
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {/* Render the expanded content for the row */}
-                                        < tr className={`collapse ${expandedRows.includes(
-                                            item.id
-                                        ) ? 'show' : ''}`}>
-                                            <td colSpan="9">
-                                                <div className='expandContent d-flex'>
+                        {dataTable.map(
+                            (item, index) => (
+                                <React.Fragment key={item.id}>
+                                    <tr>
+                                        <td className='text-center align-middle'>
+                                            {(currentPage - 1) * currentLitmit + index + 1}
+                                        </td>
+                                        <td className='text-center align-middle'>
+                                            <div className='avatar-benhnhan'>
+                                                <Image
+                                                    className='avatar-benhnhan'
+                                                    width={80}
+                                                    src={item.hinhanh ? item.hinhanh : noAvatar}
+                                                />
+                                            </div>
+                                        </td>
+                                        <td className='align-middle'>
+                                            <button
+                                                className='link-name'
+                                                onClick={() => toggleExpandRow(item.id)}>
+                                                {item.name}
+                                            </button>
+                                        </td>
+                                        <td className='text-center align-middle'>
+                                            {item.tuoi}
+                                        </td>
+                                        <td className='align-middle'>
+                                            {item.diachi}
+                                        </td>
+                                        <td className='text-center align-middle'>
+                                            {item.dienthoai}
+                                        </td>
+                                        <td className='align-middle'>
+                                            {item.phanloaibenh}
+                                        </td>
+                                        <td className='align-middle text-center'>
+                                            {item.ngaykham ? dayjs(item.ngaykham).toISOString().substring(0, 10).split("-").reverse().join("/") : 'chưa nhập'}
 
-                                                    <div className='expandContentDetail'>
-                                                        <div className="tab-content col-12">
-                                                            <Tabs
-                                                                defaultActiveKey="1"
-                                                                centered
-                                                                items={
-                                                                    [
-                                                                        {
-                                                                            key: '1',
-                                                                            label: `Ghi chú`,
-                                                                            children: <textarea
-                                                                                disabled
-                                                                                className="textarea form-control"
-                                                                                id="exampleFormControlTextarea1"
-                                                                                value={item.ghichu || ''}
-                                                                                rows="6"></textarea>,
-                                                                        },
-                                                                        {
-                                                                            key: '2',
-                                                                            label: `Chẩn đoán`,
-                                                                            children: <textarea
-                                                                                style={{ fontSize: '20px', fontWeight: 'bold' }}
-                                                                                disabled
-                                                                                className="textarea form-control"
-                                                                                id="exampleFormControlTextarea1"
-                                                                                value={item.chandoan || ''}
-                                                                                rows="12"></textarea>,
-                                                                        },
-                                                                        {
-                                                                            key: '3',
-                                                                            label: `Điều trị`,
-                                                                            children: <textarea
-                                                                                disabled
-                                                                                className="textarea form-control"
-                                                                                id="exampleFormControlTextarea1"
-                                                                                value={item.dieutri || ''}
-                                                                                rows="6"></textarea>,
-                                                                        },
-                                                                        {
-                                                                            key: '4',
-                                                                            label: `Kết quả`,
-                                                                            children: <textarea
-                                                                                style={{ fontSize: '20px', fontWeight: 'bold' }}
-                                                                                disabled
-                                                                                className="textarea form-control"
-                                                                                id="exampleFormControlTextarea1"
-                                                                                value={item.ketqua || ''}
-                                                                                rows="12"></textarea>,
-                                                                        },
-                                                                        {
-                                                                            key: '5',
-                                                                            label: `Thư viện ảnh`,
-                                                                            children:
-                                                                                <div className='d-flex justify-content-center'>
-                                                                                    <div className="carousel-wrapper">
-                                                                                        {/* {console.log(image)}
+                                        </td>
+                                        <td className='actions d-flex justify-content-center'>
+                                            <div>
+                                                {expandedRows.includes(item.id) ?
+                                                    <i className="fa fa-minus-circle remove"
+                                                        onClick={() => toggleExpandRow(item.id)}
+                                                    />
+                                                    :
+                                                    <i className="fa fa-plus-circle add"
+                                                        onClick={() => toggleExpandRow(item.id)}
+                                                    />
+                                                }
+                                            </div>
+                                            <div className='mx-3'>
+                                                <i className="fa fa-trash-o"
+                                                    onClick={() => handleDeletePatient(item)} />
+                                            </div>
+                                            <div>
+                                                <i className="fa fa-pencil"
+                                                    onClick={() => handleEditPatient(item)}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {/* Render the expanded content for the row */}
+                                    < tr className={`collapse ${expandedRows.includes(
+                                        item.id
+                                    ) ? 'show' : ''}`}>
+                                        <td colSpan="9">
+                                            <div className='expandContent d-flex'>
+
+                                                <div className='expandContentDetail'>
+                                                    <div className="tab-content col-12">
+                                                        <Tabs
+                                                            defaultActiveKey="1"
+                                                            centered
+                                                            items={
+                                                                [
+                                                                    {
+                                                                        key: '1',
+                                                                        label: `Ghi chú`,
+                                                                        children: <textarea
+                                                                            disabled
+                                                                            className="textarea form-control"
+                                                                            id="exampleFormControlTextarea1"
+                                                                            value={item.ghichu || ''}
+                                                                            rows="6"></textarea>,
+                                                                    },
+                                                                    {
+                                                                        key: '2',
+                                                                        label: `Chẩn đoán`,
+                                                                        children: <textarea
+                                                                            style={{ fontSize: '20px', fontWeight: 'bold' }}
+                                                                            disabled
+                                                                            className="textarea form-control"
+                                                                            id="exampleFormControlTextarea1"
+                                                                            value={item.chandoan || ''}
+                                                                            rows="12"></textarea>,
+                                                                    },
+                                                                    {
+                                                                        key: '3',
+                                                                        label: `Điều trị`,
+                                                                        children: <textarea
+                                                                            disabled
+                                                                            className="textarea form-control"
+                                                                            id="exampleFormControlTextarea1"
+                                                                            value={item.dieutri || ''}
+                                                                            rows="6"></textarea>,
+                                                                    },
+                                                                    {
+                                                                        key: '4',
+                                                                        label: `Kết quả`,
+                                                                        children: <textarea
+                                                                            style={{ fontSize: '20px', fontWeight: 'bold' }}
+                                                                            disabled
+                                                                            className="textarea form-control"
+                                                                            id="exampleFormControlTextarea1"
+                                                                            value={item.ketqua || ''}
+                                                                            rows="12"></textarea>,
+                                                                    },
+                                                                    {
+                                                                        key: '5',
+                                                                        label: `Thư viện ảnh`,
+                                                                        children:
+                                                                            <div className='d-flex justify-content-center'>
+                                                                                <div className="carousel-wrapper">
+                                                                                    {/* {console.log(image)}
                                                                                         {image.map((data, index) => (
                                                                                             console.log(data)
                                                                                         ))} */}
 
-                                                                                    </div>
                                                                                 </div>
-                                                                        },
-                                                                    ]
-                                                                }
-                                                            />
-                                                        </div>
+                                                                            </div>
+                                                                    },
+                                                                ]
+                                                            }
+                                                        />
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                            </td>
-                                        </tr>
-                                    </React.Fragment>
-                                ))
+                                        </td>
+                                    </tr>
+                                </React.Fragment>
+                            ))
                         }
                     </tbody>
                 </table>
-                {
-                    totalPages > 0 &&
+
+                {totalPages > 0 &&
                     <div className='d-flex justify-content-center'>
                         <div>
-
                             <Pagination
-                                defaultCurrent={currentPage}
-                                total={totalPages * 10}
+                                defaultCurrent={currentDataTablePage}
+                                total={totalDataTable * currentDataTableLitmit}
                                 onChange={handlePageClick}
                                 responsive={true}
                                 onShowSizeChange={onShowSizeChange}
