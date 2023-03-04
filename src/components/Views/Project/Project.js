@@ -7,9 +7,10 @@ import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 import ModalDelete from './Modal/ModalDelete';
 import { EditPatientContext } from '../../../context/EditPatientContext'
-import { Image, Tabs, Pagination, Modal, Button } from 'antd';
+import { Image, Tabs, Modal, Button } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash'
+import ReactPaginate from 'react-paginate';
 
 const Project = (props) => {
     let history = useHistory()
@@ -71,6 +72,7 @@ const Project = (props) => {
 
     const showModal = () => {
         setCurrentPage(1)
+        setCurrentSearchPage(1)
         setIsModalOpen(true);
     };
 
@@ -155,7 +157,7 @@ const Project = (props) => {
         if (response && response.EC === 0) {
             setTotalSearchPages(response.DT.totalPages)
             if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
-                setCurrentPage(response.DT.totalPages)
+                setCurrentSearchPage(response.DT.totalPages)
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setSearchResults(response.DT.patients)
@@ -178,7 +180,7 @@ const Project = (props) => {
         } else {
             getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
         }
-    }, [searchResults.length > 0 ? currentSearchLitmit : currentLitmit, searchResults.length > 0 ? currentSearchPage : currentPage])
+    }, [searchResults.length > 0 ? currentSearchPage : currentPage])
 
     const getAllPatient = async () => {
         let response = await fetchAllPatient(currentPage, currentLitmit)
@@ -198,23 +200,17 @@ const Project = (props) => {
     }
 
     const handleRefresh = async () => {
+        setCurrentPage(1)
         setSearchResults([]);
         setListInputs({
             inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
         })
-        await getAllPatient()
+
     }
 
     const handlePageClick = async (page) => {
-        setCurrentPage(page)
-        setCurrentSearchPage(page)
-    };
-
-    const onShowSizeChange = (current, pageSize) => {
-        console.log(current, pageSize);
-        setCurrentPage(1)
-        setCurrentLimit(pageSize)
-        setCurrentSearchLimit(pageSize)
+        setCurrentPage(page.selected + 1)
+        setCurrentSearchPage(page.selected + 1)
     };
 
     const handleDeletePatient = async (patient) => {
@@ -253,7 +249,6 @@ const Project = (props) => {
     const dataTable = searchResults.length > 0 ? searchResults : dataPatient;
     const totalDataTable = searchResults.length > 0 ? totalSearchPages : totalPages
     const currentDataTablePage = searchResults.length > 0 ? currentSearchPage : currentPage
-    const currentDataTableLitmit = searchResults.length > 0 ? currentSearchLitmit : currentLitmit
 
     return (
         <>
@@ -538,13 +533,26 @@ const Project = (props) => {
                 {totalPages > 0 &&
                     <div className='d-flex justify-content-center'>
                         <div>
-                            <Pagination
-                                defaultCurrent={currentDataTablePage}
-                                total={totalDataTable * currentDataTableLitmit}
-                                onChange={handlePageClick}
-                                responsive={true}
-                                onShowSizeChange={onShowSizeChange}
-                                pageSizeOptions={[5, 10, 15]}
+                            <ReactPaginate
+                                nextLabel="Tiếp >"
+                                onPageChange={handlePageClick}
+                                pageRangeDisplayed={3}
+                                marginPagesDisplayed={3}
+                                pageCount={totalDataTable}
+                                previousLabel="< Trước"
+                                pageClassName="page-item"
+                                pageLinkClassName="page-link"
+                                previousClassName="page-item"
+                                previousLinkClassName="page-link"
+                                nextClassName="page-item"
+                                nextLinkClassName="page-link"
+                                breakLabel="..."
+                                breakClassName="page-item"
+                                breakLinkClassName="page-link"
+                                containerClassName="pagination"
+                                activeClassName="active"
+                                renderOnZeroPageCount={null}
+                                forcePage={+currentDataTablePage - 1}
                             />
                         </div>
                     </div>
