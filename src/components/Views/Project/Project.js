@@ -36,7 +36,6 @@ const Project = (props) => {
     // Pagination Search ------------------------------
 
     const toggleExpandRow = (rowId) => {
-        console.log(rowId)
         if (expandedRows.includes(rowId)) {
             setExpandedRows(expandedRows.filter((id) => id !== rowId));
         } else {
@@ -175,11 +174,13 @@ const Project = (props) => {
     // ------------- End tìm kiếm
 
     useEffect(() => {
+
         if (searchResults.length > 0) {
             handleSearch()
         } else {
             getAllPatient() // eslint-disable-next-line react-hooks/exhaustive-deps
         }
+
     }, [searchResults.length > 0 ? currentSearchPage : currentPage])
 
     const getAllPatient = async () => {
@@ -191,10 +192,7 @@ const Project = (props) => {
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setDataPatient(response.DT.patients)
-                // console.log('Check data ', response.DT.patients)
-                // response.DT.patients.map((data) => (
-                //     console.log('check image', data.Project_Imgs)
-                // ))
+                console.log('/////////>>>Data ', response.DT.patients)
             }
         }
     }
@@ -249,6 +247,14 @@ const Project = (props) => {
     const dataTable = searchResults.length > 0 ? searchResults : dataPatient;
     const totalDataTable = searchResults.length > 0 ? totalSearchPages : totalPages
     const currentDataTablePage = searchResults.length > 0 ? currentSearchPage : currentPage
+
+    const itemTemplate = (item) => {
+        return <img src={item.img_url} alt={'Hinh 1'} style={{ width: '100%' }} />
+    }
+
+    const thumbnailTemplate = (item) => {
+        return <img src={item.img_url} alt={'Hinh 1'} />
+    }
 
     return (
         <>
@@ -364,9 +370,7 @@ const Project = (props) => {
 
                 <div><hr /></div>
 
-                <table
-                    className="table table-hover table-bordered"
-                >
+                <table className="table table-hover table-bordered">
                     <thead>
                         <tr className='table-primary'>
                             <th className='text-center align-middle'>ID</th>
@@ -386,7 +390,7 @@ const Project = (props) => {
                         {dataTable.map(
                             (item, index) => (
                                 <React.Fragment key={item.id}>
-                                    <tr>
+                                    <tr className='tr-table'>
                                         <td className='text-center align-middle'>
                                             {(currentPage - 1) * currentLitmit + index + 1}
                                         </td>
@@ -422,26 +426,28 @@ const Project = (props) => {
                                             {item.ngaykham ? dayjs(item.ngaykham).toISOString().substring(0, 10).split("-").reverse().join("/") : 'chưa nhập'}
 
                                         </td>
-                                        <td className='actions d-flex justify-content-center'>
-                                            <div>
-                                                {expandedRows.includes(item.id) ?
-                                                    <i className="fa fa-minus-circle remove"
-                                                        onClick={() => toggleExpandRow(item.id)}
+                                        <td className='actions-container'>
+                                            <div className='item-container'>
+                                                <div className='item'>
+                                                    {expandedRows.includes(item.id) ?
+                                                        <i className="fa fa-minus-circle remove"
+                                                            onClick={() => toggleExpandRow(item.id)}
+                                                        />
+                                                        :
+                                                        <i className="fa fa-plus-circle add"
+                                                            onClick={() => toggleExpandRow(item.id)}
+                                                        />
+                                                    }
+                                                </div>
+                                                <div className='item'>
+                                                    <i className="fa fa-trash-o"
+                                                        onClick={() => handleDeletePatient(item)} />
+                                                </div>
+                                                <div className='item'>
+                                                    <i className="fa fa-pencil"
+                                                        onClick={() => handleEditPatient(item)}
                                                     />
-                                                    :
-                                                    <i className="fa fa-plus-circle add"
-                                                        onClick={() => toggleExpandRow(item.id)}
-                                                    />
-                                                }
-                                            </div>
-                                            <div className='mx-3'>
-                                                <i className="fa fa-trash-o"
-                                                    onClick={() => handleDeletePatient(item)} />
-                                            </div>
-                                            <div>
-                                                <i className="fa fa-pencil"
-                                                    onClick={() => handleEditPatient(item)}
-                                                />
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -507,10 +513,9 @@ const Project = (props) => {
                                                                         children:
                                                                             <div className='d-flex justify-content-center'>
                                                                                 <div className="carousel-wrapper">
-                                                                                    {/* {console.log(image)}
-                                                                                        {image.map((data, index) => (
-                                                                                            console.log(data)
-                                                                                        ))} */}
+                                                                                    {/* {console.log('<><><><>', item.Project_Imgs)} */}
+
+
 
                                                                                 </div>
                                                                             </div>
@@ -534,12 +539,12 @@ const Project = (props) => {
                     <div className='d-flex justify-content-center'>
                         <div>
                             <ReactPaginate
-                                nextLabel="Tiếp >"
+                                nextLabel=">"
                                 onPageChange={handlePageClick}
-                                pageRangeDisplayed={3}
-                                marginPagesDisplayed={3}
+                                pageRangeDisplayed={4}
+                                marginPagesDisplayed={4}
                                 pageCount={totalDataTable}
-                                previousLabel="< Trước"
+                                previousLabel="<"
                                 pageClassName="page-item"
                                 pageLinkClassName="page-link"
                                 previousClassName="page-item"

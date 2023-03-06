@@ -2,6 +2,48 @@
     max-width: 100%;
 }
 .container-fluid{
+    .table{
+        .table-striped{
+            .tr-table{
+                .actions-container{
+                    .item-container{
+                        text-align: center;
+                        display: flex;
+                        align-items: center !important;
+                        .item{
+                            flex-basis: 33.33%;
+                            flex: 1 1 150px;
+                            i{
+                                font-size: 25px;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                    @media screen and (max-width: 768px) {
+                        .item-container{
+                            display: flex;
+                            flex-wrap: wrap;
+                            .item {
+                                flex: 1 1 150px;
+                                flex-basis: 50%;
+                            }
+                        }
+                        
+                    }
+                    @media screen and (max-width: 1200px) {
+                        .item-container{
+                            display: flex;
+                            flex-wrap: wrap;
+                            .item {
+                                flex: 1 1 150px;
+                                flex-basis: 25%;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     .search-content{
         // .input-search{
         //     margin-right: 1px;
