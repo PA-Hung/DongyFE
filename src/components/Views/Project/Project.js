@@ -21,7 +21,9 @@ const Project = (props) => {
     const [dataEditPatient, setDataEditPatient] = useContext(EditPatientContext)
 
     const [expandedRows, setExpandedRows] = useState([]);
-
+    const [visible, setVisible] = useState(false);
+    const [arrayImages, setArrayImages] = useState([])
+    const [imageAvatar, setImageAvatar] = useState(arrayImages[0]);
     const [dataPatient, setDataPatient] = useState([])
     const [searchResults, setSearchResults] = useState([]);
     // Pagination Patient ------------------------------
@@ -193,6 +195,12 @@ const Project = (props) => {
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setDataPatient(response.DT.patients)
                 console.log('/////////>>>Data ', response.DT.patients)
+                response.DT.patients.map((item) => (
+                    item.Project_Imgs.length > 0 && setArrayImages(item.Project_Imgs),
+                    item.Project_Imgs.length > 0 && setImageAvatar(item.Project_Imgs[0].img_url)
+                ))
+
+
             }
         }
     }
@@ -247,14 +255,6 @@ const Project = (props) => {
     const dataTable = searchResults.length > 0 ? searchResults : dataPatient;
     const totalDataTable = searchResults.length > 0 ? totalSearchPages : totalPages
     const currentDataTablePage = searchResults.length > 0 ? currentSearchPage : currentPage
-
-    const itemTemplate = (item) => {
-        return <img src={item.img_url} alt={'Hinh 1'} style={{ width: '100%' }} />
-    }
-
-    const thumbnailTemplate = (item) => {
-        return <img src={item.img_url} alt={'Hinh 1'} />
-    }
 
     return (
         <>
@@ -513,10 +513,30 @@ const Project = (props) => {
                                                                         children:
                                                                             <div className='d-flex justify-content-center'>
                                                                                 <div className="carousel-wrapper">
-                                                                                    {/* {console.log('<><><><>', item.Project_Imgs)} */}
 
+                                                                                    <>
+                                                                                        <Image
+                                                                                            preview={{
+                                                                                                visible: false,
+                                                                                            }}
+                                                                                            width={100}
+                                                                                            src={imageAvatar}
+                                                                                            onClick={() => setVisible(true)}
+                                                                                        />
 
-
+                                                                                        <div style={{ display: 'none' }}>
+                                                                                            <Image.PreviewGroup
+                                                                                                preview={{
+                                                                                                    visible,
+                                                                                                    onVisibleChange: (vis) => setVisible(vis),
+                                                                                                }}
+                                                                                            >
+                                                                                                {arrayImages.map((image) => (
+                                                                                                    <Image key={image.id} src={image.img_url} />
+                                                                                                ))}
+                                                                                            </Image.PreviewGroup>
+                                                                                        </div>
+                                                                                    </>
                                                                                 </div>
                                                                             </div>
                                                                     },
