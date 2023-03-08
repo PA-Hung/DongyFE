@@ -22,8 +22,6 @@ const Project = (props) => {
 
     const [expandedRows, setExpandedRows] = useState([]);
     const [visible, setVisible] = useState(false);
-    const [arrayImages, setArrayImages] = useState([])
-    const [imageAvatar, setImageAvatar] = useState(arrayImages[0]);
     const [dataPatient, setDataPatient] = useState([])
     const [searchResults, setSearchResults] = useState([]);
     // Pagination Patient ------------------------------
@@ -48,19 +46,26 @@ const Project = (props) => {
     // -------------Start tìm kiếm
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [listInputs, setListInputs] = useState({
-        inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
+        inputSearch: {
+            typeInputSearch: '', inputSearchValue: '', isValidInput: true, isValidType: true
+        },
     })
 
     const handleOnChangeInput = (name, value, key) => {
         let _listInputs = _.cloneDeep(listInputs)
         _listInputs[key][name] = value
+        if (value && name === 'inputSearchValue') {
+            _listInputs[key]['isValidInput'] = true
+        }
         setListInputs(_listInputs)
     }
 
     const handleAddNewInputSearch = () => {
         let _listInputs = _.cloneDeep(listInputs)
         // input-id : { inputSearchValue: '', isValidInput: true }
-        _listInputs[`input-${uuidv4()}`] = { typeInputSearch: '', inputSearchValue: '', isValidInput: true }
+        _listInputs[`input-${uuidv4()}`] = {
+            typeInputSearch: '', inputSearchValue: '', isValidInput: true, isValidType: true
+        }
         setListInputs(_listInputs)
     }
 
@@ -72,6 +77,7 @@ const Project = (props) => {
     }
 
     const showModal = () => {
+        console.log('>>> isValidInput >> ', listInputs)
         setCurrentPage(1)
         setCurrentSearchPage(1)
         setIsModalOpen(true);
@@ -84,6 +90,9 @@ const Project = (props) => {
     const handleChangeTypeInputSearch = (name, value, key) => {
         let _listInputs = _.cloneDeep(listInputs)
         _listInputs[key][name] = value
+        if (value && name === 'typeInputSearch') {
+            _listInputs[key]['isValidType'] = true
+        }
         setListInputs(_listInputs)
     };
 
@@ -100,76 +109,102 @@ const Project = (props) => {
     }
 
     const handleSearch = async () => {
-        setIsLoading(true)
-        let dataSearch = buildDataToSearch()
-        let searchName = ''
-        let searchPhone = ''
-        let searchNamsinh = ''
-        let searchDiachi = ''
-        let searchLoaibenh = ''
-        let searchNgaykham = ''
-        let searchGhichu = ''
-        let searchChandoan = ''
-        let searchDieutri = ''
-        let searchKetqua = ''
-        dataSearch.map((input) => {
-            if (input.typeInputSearch === 'searchName') {
-                searchName = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchDienthoai') {
-                searchPhone = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchNamsinh') {
-                searchNamsinh = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchDiachi') {
-                searchDiachi = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchLoaibenh') {
-                searchLoaibenh = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchNgaykham') {
-                searchNgaykham = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchGhichu') {
-                searchGhichu = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchChandoan') {
-                searchChandoan = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchDieutri') {
-                searchDieutri = input.inputSearchValue
-            }
-            if (input.typeInputSearch === 'searchKetqua') {
-                searchKetqua = input.inputSearchValue
-            }
+        let inValidTypeInputSearch = Object.entries(listInputs).find(([key, input], index) => {
+            return input && !input.typeInputSearch
         })
 
-        //------------------------------------
+        let inValidSearchValue = Object.entries(listInputs).find(([key, input], index) => {
+            return input && !input.inputSearchValue
+        })
 
-        let response = await searchPatient(
-            searchName, searchPhone,
-            searchNamsinh, searchDiachi,
-            searchLoaibenh, searchNgaykham,
-            searchGhichu, searchChandoan,
-            searchDieutri, searchKetqua,
-            currentSearchPage, currentSearchLitmit
-        )
-        if (response && response.EC === 0) {
-            setTotalSearchPages(response.DT.totalPages)
-            if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
-                setCurrentSearchPage(response.DT.totalPages)
-            }
-            if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
-                setSearchResults(response.DT.patients)
-                console.log('du liệu tìm kiếm nhận được', response.DT.patients)
-                setIsLoading(false)
+        if (inValidTypeInputSearch) {
+            toast.error('Vui lòng chọn cột tìm kiếm !')
+            let _listInputs = _.cloneDeep(listInputs)
+            const key = inValidTypeInputSearch[0]
+            _listInputs[key]['isValidType'] = false
+            setListInputs(_listInputs)
+        } else if (inValidSearchValue) {
+            toast.error('Vui lòng nhập dữ liệu tìm kiếm !')
+            let _listInputs = _.cloneDeep(listInputs)
+            const key = inValidSearchValue[0]
+            _listInputs[key]['isValidInput'] = false
+            setListInputs(_listInputs)
+        }
+        else {
+            setIsLoading(true)
+            let dataSearch = buildDataToSearch()
+            let searchName = ''
+            let searchPhone = ''
+            let searchNamsinh = ''
+            let searchDiachi = ''
+            let searchLoaibenh = ''
+            let searchNgaykham = ''
+            let searchGhichu = ''
+            let searchChandoan = ''
+            let searchDieutri = ''
+            let searchKetqua = ''
+
+            console.log('>>>>>> dataSearch ', dataSearch)
+
+            dataSearch.map((input) => {
+                if (input.typeInputSearch === 'searchName') {
+                    searchName = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchDienthoai') {
+                    searchPhone = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchNamsinh') {
+                    searchNamsinh = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchDiachi') {
+                    searchDiachi = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchLoaibenh') {
+                    searchLoaibenh = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchNgaykham') {
+                    searchNgaykham = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchGhichu') {
+                    searchGhichu = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchChandoan') {
+                    searchChandoan = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchDieutri') {
+                    searchDieutri = input.inputSearchValue
+                }
+                if (input.typeInputSearch === 'searchKetqua') {
+                    searchKetqua = input.inputSearchValue
+                }
+            })
+
+            //------------------------------------
+
+            let response = await searchPatient(
+                searchName, searchPhone,
+                searchNamsinh, searchDiachi,
+                searchLoaibenh, searchNgaykham,
+                searchGhichu, searchChandoan,
+                searchDieutri, searchKetqua,
+                currentSearchPage, currentSearchLitmit
+            )
+            if (response && response.EC === 0) {
+                setTotalSearchPages(response.DT.totalPages)
+                if (response.DT.totalPages > 0 && response.DT.patients.length === 0) {
+                    setCurrentSearchPage(response.DT.totalPages)
+                }
+                if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
+                    setSearchResults(response.DT.patients)
+                    console.log('du liệu tìm kiếm nhận được', response.DT.patients)
+                    setIsLoading(false)
+                } else {
+                    toast.error('Thông tin không tồn tại !')
+                    setIsLoading(false)
+                }
             } else {
-                toast.error('Thông tin không tồn tại !')
-                setIsLoading(false)
+                toast.error(response.EM)
             }
-        } else {
-            toast.error(response.EM)
         }
     };
 
@@ -194,13 +229,6 @@ const Project = (props) => {
             }
             if (response.DT.totalPages > 0 && response.DT.patients.length > 0) {
                 setDataPatient(response.DT.patients)
-                console.log('/////////>>>Data ', response.DT.patients)
-                response.DT.patients.map((item) => (
-                    item.Project_Imgs.length > 0 && setArrayImages(item.Project_Imgs),
-                    item.Project_Imgs.length > 0 && setImageAvatar(item.Project_Imgs[0].img_url)
-                ))
-
-
             }
         }
     }
@@ -211,7 +239,6 @@ const Project = (props) => {
         setListInputs({
             inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
         })
-
     }
 
     const handlePageClick = async (page) => {
@@ -300,7 +327,8 @@ const Project = (props) => {
                                 return (
                                     <div className='searchContent d-flex col-12 my-1' key={`child-${key}`}>
                                         <div className='mx-2'>
-                                            <select className="form-select col-4"
+                                            <select
+                                                className={input.isValidType ? 'form-select col-4' : 'form-select col-4 is-invalid'}
                                                 value={input.typeInputSearch}
                                                 onChange={(event) => { handleChangeTypeInputSearch('typeInputSearch', event.target.value, key) }}
                                             >
@@ -319,7 +347,7 @@ const Project = (props) => {
                                         </div>
                                         <div className='input-search col-6'>
                                             <input type='type'
-                                                className='form-control'
+                                                className={input.isValidInput ? 'form-control' : 'form-control is-invalid'}
                                                 value={input.inputSearchValue}
                                                 onChange={(event) => handleOnChangeInput('inputSearchValue', event.target.value, key)}
                                             />
@@ -513,29 +541,15 @@ const Project = (props) => {
                                                                         children:
                                                                             <div className='d-flex justify-content-center'>
                                                                                 <div className="carousel-wrapper">
-
                                                                                     <>
-                                                                                        <Image
-                                                                                            preview={{
-                                                                                                visible: false,
-                                                                                            }}
-                                                                                            width={100}
-                                                                                            src={imageAvatar}
-                                                                                            onClick={() => setVisible(true)}
-                                                                                        />
-
-                                                                                        <div style={{ display: 'none' }}>
-                                                                                            <Image.PreviewGroup
-                                                                                                preview={{
-                                                                                                    visible,
-                                                                                                    onVisibleChange: (vis) => setVisible(vis),
-                                                                                                }}
-                                                                                            >
-                                                                                                {arrayImages.map((image) => (
-                                                                                                    <Image key={image.id} src={image.img_url} />
-                                                                                                ))}
-                                                                                            </Image.PreviewGroup>
-                                                                                        </div>
+                                                                                        {item.Project_Imgs.map((image) => (
+                                                                                            <Image
+                                                                                                key={image.id}
+                                                                                                width={100}
+                                                                                                src={image.img_url}
+                                                                                                onClick={() => setVisible(true)}
+                                                                                            />
+                                                                                        ))}
                                                                                     </>
                                                                                 </div>
                                                                             </div>

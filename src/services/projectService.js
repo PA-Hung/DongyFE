@@ -22,16 +22,8 @@ const updatePatient = (patientData) => {
     return axios.put('/api/v1/project/update', { ...patientData })
 }
 
-const searchPatient = (name, phone,
-    namsinh, diachi, loaibenh,
-    ngaykham, ghichu, chandoan,
-    dieutri, ketqua,
-    page, limit) => {
-    console.log('check data gui BE >>>>>>>>>', name, phone,
-        namsinh, diachi, loaibenh,
-        ngaykham, ghichu, chandoan,
-        dieutri, ketqua,
-        page, limit)
+const searchPatient = (name, phone, namsinh, diachi, loaibenh, ngaykham, ghichu, chandoan, dieutri, ketqua, page, limit) => {
+    console.log('data gui BE', name, phone, namsinh, diachi, loaibenh, ngaykham, ghichu, chandoan, dieutri, ketqua, page, limit)
     return axios.get
         (`api/v1/project/search?name=${name}&phone=${phone}&namsinh=${namsinh}&diachi=${diachi}&loaibenh=${loaibenh}&ngaykham=${ngaykham}&ghichu=${ghichu}&chandoan=${chandoan}&dieutri=${dieutri}&ketqua=${ketqua}&page=${page}&limit=${limit}`)
 }
