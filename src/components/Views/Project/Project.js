@@ -139,10 +139,6 @@ const Project = (props) => {
             let searchDiachi = ''
             let searchLoaibenh = ''
             let searchNgaykham = ''
-            let searchGhichu = ''
-            let searchChandoan = ''
-            let searchDieutri = ''
-            let searchKetqua = ''
 
             console.log('>>>>>> dataSearch ', dataSearch)
 
@@ -165,18 +161,6 @@ const Project = (props) => {
                 if (input.typeInputSearch === 'searchNgaykham') {
                     searchNgaykham = input.inputSearchValue
                 }
-                if (input.typeInputSearch === 'searchGhichu') {
-                    searchGhichu = input.inputSearchValue
-                }
-                if (input.typeInputSearch === 'searchChandoan') {
-                    searchChandoan = input.inputSearchValue
-                }
-                if (input.typeInputSearch === 'searchDieutri') {
-                    searchDieutri = input.inputSearchValue
-                }
-                if (input.typeInputSearch === 'searchKetqua') {
-                    searchKetqua = input.inputSearchValue
-                }
             })
 
             //------------------------------------
@@ -185,8 +169,6 @@ const Project = (props) => {
                 searchName, searchPhone,
                 searchNamsinh, searchDiachi,
                 searchLoaibenh, searchNgaykham,
-                searchGhichu, searchChandoan,
-                searchDieutri, searchKetqua,
                 currentSearchPage, currentSearchLitmit
             )
             if (response && response.EC === 0) {
@@ -237,7 +219,7 @@ const Project = (props) => {
         setCurrentPage(1)
         setSearchResults([]);
         setListInputs({
-            inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true },
+            inputSearch: { typeInputSearch: '', inputSearchValue: '', isValidInput: true, isValidType: true },
         })
     }
 
@@ -339,10 +321,6 @@ const Project = (props) => {
                                                 <option value="searchDienthoai">Điện thoại</option>
                                                 <option value="searchLoaibenh">Loại bệnh</option>
                                                 <option value="searchNgaykham">Ngày khám</option>
-                                                <option value="searchGhichu">Ghi chú</option>
-                                                <option value="searchChandoan">Chẩn đoán</option>
-                                                <option value="searchDieutri">Điều trị</option>
-                                                <option value="searchKetqua">Kết quả</option>
                                             </select>
                                         </div>
                                         <div className='input-search col-6'>
@@ -426,7 +404,7 @@ const Project = (props) => {
                                             <div className='avatar-benhnhan'>
                                                 <Image
                                                     className='avatar-benhnhan'
-                                                    width={80}
+                                                    height={70}
                                                     src={item.hinhanh ? item.hinhanh : noAvatar}
                                                 />
                                             </div>
@@ -545,7 +523,7 @@ const Project = (props) => {
                                                                                         {item.Project_Imgs.map((image) => (
                                                                                             <Image
                                                                                                 key={image.id}
-                                                                                                width={100}
+                                                                                                height={100}
                                                                                                 src={image.img_url}
                                                                                                 onClick={() => setVisible(true)}
                                                                                             />

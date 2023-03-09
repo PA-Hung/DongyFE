@@ -50,17 +50,17 @@ const EditPatient = (props) => {
             setOjbCheckInput({ ...defaultValidInput, isValidName: false })
             return false
         }
-        if (!dataEditPatient.dienthoai) {
-            toast.error('Bạn phải nhập số điện thoại !')
-            setOjbCheckInput({ ...defaultValidInput, isValidPhone: false })
-            return false
-        }
-        let phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-        if (!phoneno.test(dataEditPatient.dienthoai)) {
-            toast.error('Số điện thoại không đúng !')
-            setOjbCheckInput({ ...defaultValidInput, isValidPhone: false })
-            return false
-        }
+        // if (!dataEditPatient.dienthoai) {
+        //     toast.error('Bạn phải nhập số điện thoại !')
+        //     setOjbCheckInput({ ...defaultValidInput, isValidPhone: false })
+        //     return false
+        // }
+        // let phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        // if (!phoneno.test(dataEditPatient.dienthoai)) {
+        //     toast.error('Số điện thoại không đúng !')
+        //     setOjbCheckInput({ ...defaultValidInput, isValidPhone: false })
+        //     return false
+        // }
         if (!dataEditPatient.ngaykham) {
             toast.error('Bạn phải nhập ngày khám !')
             setOjbCheckInput({ ...defaultValidInput, isValidNgaykham: false })
