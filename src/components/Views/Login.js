@@ -69,6 +69,10 @@ const Login = (props) => {
         history.push("/register");
     }
 
+    const handleRefresh = () => {
+        window.location.reload();
+    }
+
     useEffect(() => {
         if (user && user.isAuthenticated) { // eslint-disable-next-line react-hooks/exhaustive-deps
             history.push('/home') // eslint-disable-next-line react-hooks/exhaustive-deps

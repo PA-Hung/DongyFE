@@ -33,7 +33,7 @@ const AppRoutes = (props) => {
                     <Register />
                 </Route>
                 <Route path="*">
-                    404 not found
+                    <Home />
                 </Route>
             </Switch>
         </>

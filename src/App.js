@@ -1,6 +1,6 @@
 import SideBar from "./components/Navigation/SideBar";
 import AppRoutes from "./routers/AppRoutes";
-import React from "react";
+import React, { useState } from "react";
 import './App.scss';
 import { BrowserRouter as Router, } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
@@ -11,6 +11,17 @@ import NaviBar from "./components/Navigation/NaviBar";
 
 function App() {
   const { user } = React.useContext(UserContext)
+  const [isHideAllBar, setIsHideAllBar] = useState(false)
+  const handleKeyDown = (event) => {
+    if (event.key === "F11") {
+      setIsHideAllBar(true)
+    }
+    if (event.key === "Enter") {
+      setIsHideAllBar(false)
+    }
+  };
+  document.addEventListener("keydown", handleKeyDown);
+
   return (
     <>
       <Router>
@@ -30,9 +41,11 @@ function App() {
           :
           <>
             <div className="main-app" >
-              <div className="sidebar"><SideBar /></div>
+              {isHideAllBar ? <div className="d-none sidebar"><SideBar /></div>
+                : <div className="sidebar"><SideBar /></div>}
               <div className="right-container">
-                <div className="navibar"><NaviBar /></div>
+                {isHideAllBar ? <div className="d-none navibar"><NaviBar /></div>
+                  : <div className="navibar"><NaviBar /></div>}
                 <div className="app-container" ><AppRoutes /></div>
               </div>
             </div>
